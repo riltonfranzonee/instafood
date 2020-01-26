@@ -9,6 +9,7 @@ function App (){
   const [isLoading, setIsLoading] = useState('')
   const [dataCategories, setDataCategories] = useState([])
   const [selectCategory, setSelectCategory] = useState(0)
+  const [dataFood, setDataFood] = useState([])
 
   function fetchData(){
     const url = 'http://tutofox.com/foodapp/api.json'
@@ -18,17 +19,32 @@ function App (){
       setDataBanner(jsonResponse.banner),
       setIsLoading(false)
       setDataCategories(jsonResponse.categories)
+      setDataFood(jsonResponse.food)
     })
     .catch(error => console.error(error))
   }
 
-  function renderItem(item){
+  function renderItemCategory(item){
     return(
       <TouchableOpacity style={[styles.itemCategory, {backgroundColor: item.color}]} onPress={() => setSelectCategory(item.id)}>
         <Image style={styles.imageCategory} resizeMode='contain' source={{uri: item.image}} />
         <Text style={styles.nameCategory}>{item.name}</Text>
       </TouchableOpacity>
     )
+  }
+
+  function renderItemFood(item){
+    let catg = selectCategory
+    if(catg == 0 || catg == item.categorie){
+      return(
+        <TouchableOpacity style={styles.itemFood}>
+            <Image style={styles.imageFood} resizeMode='contain' source={{uri: item.image}}/>
+            <View style={styles.spaceBreak}/>
+            <Text style={styles.nameFood}>{item.name}</Text>
+            <Text style={styles.priceFood}>${item.price}</Text>
+        </TouchableOpacity>
+      )
+    }
   }
 
   useEffect(() => {
@@ -55,12 +71,16 @@ function App (){
       <View style={styles.containerCategories}>
           <Text style={styles.titleCategories}>Categories</Text>
           <FlatList horizontal={true} data={dataCategories}
-          renderItem ={({item}) => renderItem(item)} 
+          renderItem ={({item}) => renderItemCategory(item)} 
           keyExtractor = {(item, index) => index.toString()}
           showsHorizontalScrollIndicator={false}
           />
+          <FlatList data={dataFood}
+          renderItem={(({item}) => renderItemFood(item))}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          />
           <View style={{height: 20}}>
-
           </View>
       </View>
     </ScrollView>
@@ -118,5 +138,39 @@ const styles = StyleSheet.create({
   nameCategory:{
     fontWeight: 'bold',
     fontSize: 22
+  },
+  imageFood:{
+    width: (width/2) - 30,
+    height: (width/2) - 50,
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: -45,
+    marginBottom: 10
+  },
+  itemFood:{
+    width: (width/2)-20,
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 55,
+    marginBottom: 5,
+    marginLeft: 10,
+    alignItems: 'center',
+    elevation: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 50,
+    backgroundColor: '#fff'
+  },
+  spaceBreak:{
+    height: (width/2)-110,
+    width: (width/2)-30,
+    backgroundColor: 'transparent'
+  },
+  nameFood:{
+    fontSize: 22,
+    textAlign: 'center'
+  },
+  priceFood:{
+    fontSize: 20,
+    color: 'green'
   }
 })
